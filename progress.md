@@ -7,7 +7,7 @@
 
 ## 現在のフェーズ
 
-**Phase 1: Expo プロジェクトセットアップ**（未着手）
+**Phase 6: 本の詳細・編集・削除**（未着手）
 
 ---
 
@@ -16,11 +16,11 @@
 | フェーズ | 内容 | ステータス |
 |---------|------|-----------|
 | Phase 0 | Claude Code 開発基盤構築 | ✅ 完了 |
-| Phase 1 | Expo プロジェクトセットアップ | 🔄 進行中 |
-| Phase 2 | 認証（Supabase Auth / Sign in with Apple） | ⬜ 未着手 |
-| Phase 3 | DB 構築（テーブル・RLS・CRUD） | ⬜ 未着手 |
-| Phase 4 | 書籍登録（バーコード・検索・書籍 API） | ⬜ 未着手 |
-| Phase 5 | 本棚（一覧・フィルター・表示切り替え） | ⬜ 未着手 |
+| Phase 1 | Expo プロジェクトセットアップ | ✅ 完了 |
+| Phase 2 | 認証（Supabase Auth / Sign in with Apple） | ✅ 完了 |
+| Phase 3 | DB 構築（テーブル・RLS・CRUD） | ✅ 完了 |
+| Phase 4 | 書籍登録（バーコード・検索・書籍 API） | ✅ 完了 |
+| Phase 5 | 本棚（一覧・フィルター・表示切り替え） | ✅ 完了 |
 | Phase 6 | 本の詳細・編集・削除 | ⬜ 未着手 |
 | Phase 7 | 設定・アカウント削除 | ⬜ 未着手 |
 | Phase 8 | リリース（EAS Build・TestFlight・App Store） | ⬜ 未着手 |
@@ -52,20 +52,22 @@
 
 ---
 
-## Phase 1: Expo プロジェクトセットアップ 🔄
+## Phase 1: Expo プロジェクトセットアップ ✅
 
-**開始予定:** 次回セッション
+**完了日:** 2026-08-10
 
-### やること
+### 完了したこと
 
-- Expo プロジェクト作成
-- TypeScript / ESLint / Prettier 設定
-- Expo Router 設定
-- 基本ディレクトリ構成
-- GitHub リポジトリ設定
-- Supabase プロジェクト作成
+- Expo 57 + Expo Router + TypeScript strict プロジェクト作成
+- ESLint / Prettier / Jest 設定
+- 画面スケルトン 9画面（`app/`）作成
+- `src/` ディレクトリ構成（components / hooks / store / services / lib / types / utils）
+- 共通型定義（`src/types/index.ts`）
+- GitHub リポジトリ作成・初回プッシュ
+- Supabase プロジェクト作成・`.env.local` に設定
+- `npm run typecheck` / `npm run lint` エラーなし
 
-### 完了条件
+### 残課題（ブロッカーではない）
 
 - `npx expo start` でアプリが起動する
 - `npx tsc --noEmit` がエラーなしで通る
@@ -74,22 +76,50 @@
 
 ---
 
-## Phase 2: 認証 ⬜
+## Phase 2: 認証 ✅
 
-_Phase 1 完了後に詳細化_
+**完了日:** 2026-08-12
+
+### 完了したこと
+
+- `@supabase/supabase-js` / `@react-native-async-storage/async-storage` インストール
+- Supabase クライアント初期化（`src/lib/supabase.ts`）
+- `AuthUser` 型定義（`src/types/index.ts`）
+- Zustand 認証ストア（`src/store/authStore.ts`）
+- 認証サービス（`src/services/authService.ts`）— signIn / signUp / signOut
+- 認証カスタムフック（`src/hooks/useAuth.ts`）
+- ログイン画面（`app/login.tsx`）— メール + パスワード、ログイン/新規登録切り替え
+- 認証ガード（`app/_layout.tsx`）— セッション監視・未ログイン時リダイレクト
+- ログアウト（`app/settings.tsx`）
 
 ---
 
-## Phase 3: DB 構築 ⬜
+## Phase 3: DB 構築 ✅
 
-_Phase 2 完了後に詳細化_
+**完了日:** 2026-08-14
+
+### 完了したこと
+
+- Migration SQL 作成（books・reading_records・RLS・インデックス）
+- `src/types/database.ts`（Supabase Database 型定義）
+- `src/lib/supabase.ts` 型安全化（`createClient<Database>`）
+- `src/services/bookService.ts`（findByIsbn / findById / create / findOrCreate）
+- `src/services/recordService.ts`（findByUserId / findByUserAndBook / create / update / delete）
+
+### 残作業（手動）
+- Supabase SQL Editor で `supabase/migrations/20260814000000_initial_schema.sql` を実行
 
 ---
 
-## Phase 4: 書籍登録 ⬜
+## Phase 4: 書籍登録 ✅
 
-_Phase 3 完了後に詳細化_
-**注意:** 書籍 API（OpenBD 等）の最終選定が必要（ブロッカー）
+**完了日:** 2026-08-15
+
+### 完了したこと
+- `src/services/bookApiService.ts`（OpenBD + Google Books フォールバック）
+- `src/store/bookRegistrationStore.ts`（登録フロー一時状態）
+- `src/hooks/useBookRegistration.ts`（ISBN取得・登録・二重登録チェック）
+- 登録方法選択・バーコードスキャン・テキスト検索・書籍確認登録の4画面実装
 
 ---
 
@@ -110,4 +140,4 @@ _順次詳細化_
 
 ---
 
-_最終更新: 2026-08-10 (Phase 1 開始)_
+_最終更新: 2026-09-12 (Expo SDK 57 → 54 にダウングレード。Expo Go 接続タイムアウトの解消)_

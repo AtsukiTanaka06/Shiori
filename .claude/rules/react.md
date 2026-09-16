@@ -36,3 +36,11 @@
 
 - `StyleSheet.create` を基本とする
 - インラインスタイルを多用しない
+
+## デザインシステム
+
+- カラー・スペーシング・角丸は必ず `src/constants/design.ts` のトークンを使う
+- 背景色に pure white（`#fff`）を使わない。warm ivory（`Colors.ivory50`）を使う
+- プライマリボタンは `Colors.sage500`、破壊的操作は `Colors.error`
+- タッチターゲットは最小 44×44pt（`minHeight: 44` + `justifyContent: 'center'`）
+- 詳細は `Input/Design.md` および `docs/ui.md` を参照する

@@ -1,4 +1,12 @@
 /**
+ * 認証済みユーザー情報
+ */
+export interface AuthUser {
+  id: string;
+  email: string;
+}
+
+/**
  * 読書ステータス
  * - to_read: これから読む
  * - finished: 読了
