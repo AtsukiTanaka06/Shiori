@@ -15,6 +15,47 @@ Claude が作業を完了した際に追記するログ。新しいエントリ�
 
 ---
 
+## 2026-09-16 (Expo SDK 54 → SDK 57 再アップグレード)
+
+### やったこと
+- 実機の Expo Go アプリを SDK 57 対応版に更新済みであることを確認した上で再度アップグレード実施
+- Node.js が SDK 57 のツールチェイン要件（`>=20.19.4`）を満たしておらず（Nodist管理下で `v20.10.0` を使用中）、`expo install --fix` が `node:util.parseEnv` 不在エラーで失敗
+- Nodist で Node.js `22.11.0` を追加インストールし、グローバルに切り替え（`nodist add 22.11.0` → `nodist global 22.11.0`）
+- `npm install expo@~57.0.0 --legacy-peer-deps` で Expo 本体を 54 → 57 にアップグレード（react-dom のピア依存衝突のため `--legacy-peer-deps` が必要、前回と同様）
+- `npx expo install --fix` で依存パッケージを SDK 57 互換に一括更新（react-dom ピア依存衝突により追加で `npm install --legacy-peer-deps` が必要だった）
+- `app/add/scan.tsx` の `StyleSheet.absoluteFillObject`（2箇所）を `StyleSheet.absoluteFill` に修正（RN 0.86 で `absoluteFillObject` が型定義から削除されているため。前回アップグレード時と同じ修正）
+- `jest-expo@57` が新たに要求する peer dependency `@react-native/jest-preset@^0.86.3` を追加インストール（未対応のまま `npm test` するとプリセットエラーで失敗）
+- `npx tsc --noEmit` / `npx eslint .` エラーなし確認
+- `npx expo-doctor` で SDK 関連のチェックはすべて通過（アセットファイル不在の既存警告のみ、SDK 変更とは無関係）
+- `npm test` はプリセットエラー解消を確認（テストファイル自体が未作成のため 0 件、既存の状態）
+
+### 注意点
+- Node.js は Nodist で `20.10.0` と `22.11.0` の2バージョンが共存。現在のグローバル設定は `22.11.0`
+- `metro@0.84.x` 等一部パッケージは Node `^22.13.0` を要求しており、`22.11.0` では `EBADENGINE` 警告が出るが動作に支障はなし
+
+### アップグレード後バージョン
+- expo: ~57.0.0（インストール実体 57.0.23）
+- expo-router: ~57.0.21
+- expo-camera: ~57.0.5
+- expo-constants: ~57.0.18
+- expo-linking: ~57.0.10
+- expo-status-bar: ~57.0.1
+- react: 19.2.3
+- react-native: 0.86.3
+- react-native-safe-area-context: ~5.7.0
+- react-native-screens: ~4.26.0
+- jest-expo: ~57.0.5
+- eslint-config-expo: ~57.0.2
+- typescript: ~6.0.3
+- @react-native/jest-preset: ^0.86.3（新規追加）
+
+### 変更ファイル
+- `package.json`（変更）
+- `package-lock.json`（変更）
+- `app/add/scan.tsx`（変更）
+
+---
+
 ## 2026-09-12 (Expo SDK 57 → SDK 54 ダウングレード)
 
 ### やったこと
@@ -440,3 +481,7 @@ Claude が作業を完了した際に追記するログ。新しいエントリ�
 <!-- session:end 2026-09-13 11:46 -->
 <!-- session:end 2026-09-13 11:49 -->
 <!-- session:end 2026-09-13 11:50 -->
+<!-- session:end 2026-09-16 23:26 -->
+<!-- session:end 2026-09-16 23:30 -->
+<!-- session:end 2026-09-16 23:30 -->
+<!-- session:end 2026-09-16 23:45 -->

@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     flexDirection: 'column',
   },
   topMask: {
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     borderRightWidth: CORNER_WIDTH,
   },
   loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0,0,0,0.6)',
     alignItems: 'center',
     justifyContent: 'center',

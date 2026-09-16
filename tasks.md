@@ -103,9 +103,10 @@ _なし_
 - [ ] 表紙画像の保存方法（Supabase Storage vs API URL 直接参照）
 - [ ] `books` テーブルの重複 ISBN 戦略（共有 vs ユーザーごとに作成）
 - [ ] Apple Developer Program 登録（EAS Build に必要）
-- [x] Node.js バージョンアップ（v24.19.0 に更新済み）
+- [x] Node.js バージョンアップ（Nodist 経由で `22.11.0` に切り替え済み。SDK 57 ツールチェイン要件 `>=20.19.4` を満たす）
 - [x] Expo SDK 57 → 54 にダウングレード（Expo Go アプリのバージョンと合わせるため）
+- [x] Expo SDK 54 → 57 に再アップグレード（実機 Expo Go を SDK 57 対応版に更新後）
 
 ---
 
-_最終更新: 2026-09-12 (Expo SDK 54 にダウングレード)_
+_最終更新: 2026-09-16 (Expo SDK 57 に再アップグレード)_
