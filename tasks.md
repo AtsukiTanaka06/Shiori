@@ -70,7 +70,7 @@ _なし_
 
 ### Phase 5 — 本棚
 
-- [x] 本棚画面 — リスト表示（`app/index.tsx`）
+- [x] 本棚画面 — リスト表示（`app/(tabs)/index.tsx`）
 - [x] 本棚画面 — カバーグリッド表示
 - [x] 表示切り替え（リスト / グリッド）
 - [x] ステータスフィルター（すべて / これから / 読了）
@@ -78,9 +78,27 @@ _なし_
 
 ### Phase 6 — 本の詳細・編集
 
-- [ ] 詳細画面（`app/books/[id].tsx`）
+- [x] 詳細画面（`app/books/[id].tsx`）— 書籍情報・読書記録・日記メモ表示（日記追加機能の一部として実装）
 - [ ] 編集画面
 - [ ] 削除（確認ダイアログ付き）
+
+### 日記機能（本棚とは別軸の追加機能）
+
+- [x] `diary_entries` テーブル作成（migration）
+- [x] RLS ポリシー設定（`diary_entries`）
+- [x] インデックス設定（`user_id`, `book_id`, `(user_id, entry_date)`）
+- [x] `DiaryEntry` 型定義
+- [x] `diaryService.ts`（findByBookId / findByUserAndDate / upsert）
+- [x] `isReadingOnDate` ユーティリティ + unit test
+- [x] `useDiary` フック（カレンダー日別ビュー用）
+- [x] `useBookDetail` フック（本の詳細画面用）
+- [x] タブナビゲーション新設（`app/(tabs)/_layout.tsx`、本棚 ⇄ カレンダー）
+- [x] `app/index.tsx` → `app/(tabs)/index.tsx` に移動
+- [x] カレンダー画面（`app/(tabs)/diary.tsx`）— 日別の読書中リスト・メモ入力モーダル
+- [x] 本の詳細画面に日記セクション追加
+- [x] `@expo/vector-icons` / `expo-font` / `react-native-calendars` 追加
+- [ ] Supabase SQL Editor で `20260923000000_diary_entries.sql` を実行（手動）
+- [ ] 実機/シミュレータでの動作確認（タブ切り替え・日付選択・メモ保存・詳細画面表示）
 
 ### Phase 7 — 設定・アカウント
 
@@ -109,4 +127,4 @@ _なし_
 
 ---
 
-_最終更新: 2026-09-16 (Expo SDK 57 に再アップグレード)_
+_最終更新: 2026-09-22 (日記機能を追加実装、`diary_entries` マイグレーションは手動実行待ち)_

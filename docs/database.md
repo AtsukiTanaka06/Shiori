@@ -40,28 +40,47 @@ Supabase PostgreSQL を使用。
 | memo | text | | メモ（任意） |
 | created_at | timestamptz | ✓ | 登録日時 |
 
+### diary_entries
+
+読書中の本に対する日ごとのメモ（日記）。
+
+| カラム | 型 | 必須 | 説明 |
+|--------|-----|------|------|
+| id | uuid | ✓ | PK |
+| user_id | uuid | ✓ | FK: auth.users.id |
+| book_id | uuid | ✓ | FK: books.id |
+| entry_date | date | ✓ | メモの対象日 |
+| memo | text | ✓ | メモ本文 |
+| created_at | timestamptz | ✓ | 登録日時 |
+
+`UNIQUE (user_id, book_id, entry_date)` — 1本×1日につき1件、上書き編集（upsert）で管理する。
+
 ## リレーション
 
 ```
 auth.users (Supabase管理)
-    │ 1:N
-    ▼
-reading_records
-    │ N:1
-    ▼
-books
+    │ 1:N              │ 1:N
+    ▼                  ▼
+reading_records    diary_entries
+    │ N:1               │ N:1
+    ▼                   ▼
+books  ◀──────────────────
 ```
 
 ## RLS方針
 
 - **books**: 全ユーザーが SELECT 可能。INSERT/UPDATE/DELETE は認証済みユーザー（書籍情報は共有リソースとして管理）
 - **reading_records**: `user_id = auth.uid()` の行のみ全操作可能
+- **diary_entries**: `user_id = auth.uid()` の行のみ全操作可能
 
 ## インデックス
 
 - `reading_records.user_id`（本棚取得に使用）
 - `reading_records.book_id`
 - `books.isbn`（重複チェック・検索に使用）
+- `diary_entries.user_id`
+- `diary_entries.book_id`
+- `diary_entries.(user_id, entry_date)`（カレンダー日別ビュー取得に使用）
 
 ## マイグレーション
 

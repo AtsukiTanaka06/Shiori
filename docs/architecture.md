@@ -37,7 +37,10 @@ Shiori は React Native + Expo + Supabase で構築する iOS アプリ。
 ```
 app/                   # Expo Router（画面）— プロジェクトルートに配置
 ├── _layout.tsx        # ルートレイアウト
-├── index.tsx          # 本棚
+├── (tabs)/            # タブナビゲーション（本棚 ⇄ カレンダー）
+│   ├── _layout.tsx
+│   ├── index.tsx      # 本棚
+│   └── diary.tsx      # カレンダー（日記）
 ├── login.tsx
 ├── settings.tsx
 ├── add/
@@ -68,6 +71,8 @@ Zustand を使用。以下のストアを想定：
 - `bookshelfStore`：本棚の表示モード・フィルター
 - `bookRegistrationStore`：本登録フロー中の一時状態
 
+日記機能は `useDiary` / `useBookDetail` フック内のローカル state で完結させ、専用の Zustand ストアは設けない（画面間で共有する状態がないため）。
+
 ## データフロー
 
 ### 書籍登録（バーコード）
@@ -80,6 +85,14 @@ Expo Camera → ISBN → 書籍API (OpenBD) → Mapperで変換 → 登録画面
 
 ```
 Supabase → reading_records（JOIN books） → Zustand → FlatList
+```
+
+### 日記（カレンダー）
+
+```
+useBookshelf（本棚データ） → isReadingOnDate でその日の読書中リストを算出
+                                         ↓
+                          diaryService（Supabase diary_entries） → メモ表示・保存
 ```
 
 ## Open Questions

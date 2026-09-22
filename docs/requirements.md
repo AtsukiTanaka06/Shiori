@@ -23,6 +23,7 @@
 | 本の削除 | 読書記録を削除する |
 | アカウント認証 | Supabase Auth（Sign in with Apple 優先）でログイン・ログアウト・アカウント削除 |
 | データ引き継ぎ | 同じアカウントで再ログインすると読書記録を復元できる |
+| 日記 | カレンダー画面で日付を選び、その日読書中の本に日ごとのメモを記録する（1本×1日につき1件、上書き編集） |
 
 ## MVP 対象外
 
@@ -82,6 +83,15 @@
 
 ---
 
+## 日記
+
+- カレンダー画面（デフォルトで今日の日別ビュー）に、その日「読書中」の本の一覧を表示する
+- 「読書中」の判定：`started_at` が設定済み かつ（`finished_at` が未設定、またはその日以降）。新しいステータス値は追加しない
+- 本をタップしてその日のメモを記入・保存できる（1本×1日につき1件、上書き編集）
+- 本の詳細画面では、その本に紐づく日記メモを日付順（新しい順）に一覧表示する
+
+---
+
 ## 本棚
 
 - デフォルト表示：登録日時の新しい順
@@ -90,11 +100,12 @@
 
 ---
 
-## 画面一覧（9画面）
+## 画面一覧（10画面）
 
 | 画面 | ファイル |
 |------|---------|
-| 本棚 | `app/index.tsx` |
+| 本棚 | `app/(tabs)/index.tsx` |
+| カレンダー（日記） | `app/(tabs)/diary.tsx` |
 | 本を追加 | `app/add/index.tsx` |
 | バーコードスキャン | `app/add/scan.tsx` |
 | 本の検索 | `app/add/search.tsx` |
@@ -134,6 +145,7 @@
 ```
 books: id, isbn, title, authors, cover_image, publisher, published_at, page_count, genre, created_at
 reading_records: id, user_id, book_id, status, started_at, finished_at, rating, impression, memo, created_at
+diary_entries: id, user_id, book_id, entry_date, memo, created_at
 ```
 
 ---

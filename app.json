@@ -28,7 +28,8 @@
         {
           "cameraPermission": "バーコードをスキャンして本を登録するためにカメラを使用します。"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true

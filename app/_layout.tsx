@@ -47,7 +47,7 @@ export default function RootLayout() {
     <>
       <AuthGuard />
       <Stack>
-        <Stack.Screen name="index" options={{ title: '本棚', headerShown: true }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ title: 'ログイン', headerShown: false }} />
         <Stack.Screen name="settings" options={{ title: '設定' }} />
         <Stack.Screen name="add" options={{ headerShown: false }} />

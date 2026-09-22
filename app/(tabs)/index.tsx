@@ -7,12 +7,12 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Colors, FontSize, Spacing, Radius, Shadow } from '../src/constants/design';
-import { useBookshelf } from '../src/hooks/useBookshelf';
-import type { BookWithRecord, ReadingStatus } from '../src/types';
+import { Colors, FontSize, Spacing, Radius, Shadow } from '../../src/constants/design';
+import { useBookshelf } from '../../src/hooks/useBookshelf';
+import type { BookWithRecord, ReadingStatus } from '../../src/types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const GRID_COLUMNS = 3;
@@ -97,80 +97,66 @@ export default function BookshelfScreen() {
   const isEmpty = !isLoading && filteredItems.length === 0;
 
   return (
-    <>
-      <Stack.Screen
-        options={{
-          title: 'Shiori',
-          headerStyle: { backgroundColor: Colors.ivory50 },
-          headerTintColor: Colors.ink900,
-          headerRight: () => (
-            <TouchableOpacity onPress={() => router.push('/settings')} hitSlop={8}>
-              <Text style={styles.headerButton}>設定</Text>
+    <SafeAreaView style={styles.safe} edges={['bottom']}>
+      {/* フィルター + 表示切り替え */}
+      <View style={styles.toolbar}>
+        <View style={styles.filters}>
+          {FILTER_OPTIONS.map((opt) => (
+            <TouchableOpacity
+              key={opt.value}
+              style={[styles.filterTab, filter === opt.value && styles.filterTabActive]}
+              onPress={() => setFilter(opt.value)}
+            >
+              <Text style={[styles.filterTabText, filter === opt.value && styles.filterTabTextActive]}>
+                {opt.label}
+              </Text>
             </TouchableOpacity>
-          ),
-        }}
-      />
-      <SafeAreaView style={styles.safe} edges={['bottom']}>
-        {/* フィルター + 表示切り替え */}
-        <View style={styles.toolbar}>
-          <View style={styles.filters}>
-            {FILTER_OPTIONS.map((opt) => (
-              <TouchableOpacity
-                key={opt.value}
-                style={[styles.filterTab, filter === opt.value && styles.filterTabActive]}
-                onPress={() => setFilter(opt.value)}
-              >
-                <Text style={[styles.filterTabText, filter === opt.value && styles.filterTabTextActive]}>
-                  {opt.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <TouchableOpacity
-            style={styles.displayToggle}
-            onPress={() => setDisplayMode(displayMode === 'list' ? 'grid' : 'list')}
-            hitSlop={8}
-          >
-            <Text style={styles.displayToggleText}>{displayMode === 'list' ? '⊞' : '☰'}</Text>
-          </TouchableOpacity>
+          ))}
         </View>
-
-        {/* 本棚リスト */}
-        {isEmpty ? (
-          <View style={styles.empty}>
-            <Text style={styles.emptyTitle}>本棚が空です</Text>
-            <Text style={styles.emptySubText}>バーコードまたは検索で本を追加してみましょう</Text>
-          </View>
-        ) : displayMode === 'list' ? (
-          <FlatList
-            key="list"
-            data={filteredItems}
-            keyExtractor={(item) => item.record.id}
-            contentContainerStyle={styles.listContent}
-            renderItem={({ item }) => (
-              <ListItem item={item} onPress={() => router.push(`/books/${item.book.id}`)} />
-            )}
-          />
-        ) : (
-          <FlatList
-            key="grid"
-            data={filteredItems}
-            keyExtractor={(item) => item.record.id}
-            numColumns={GRID_COLUMNS}
-            contentContainerStyle={styles.gridContent}
-            columnWrapperStyle={styles.gridRow}
-            renderItem={({ item }) => (
-              <GridItem item={item} onPress={() => router.push(`/books/${item.book.id}`)} />
-            )}
-          />
-        )}
-
-        {/* 追加ボタン */}
-        <TouchableOpacity style={styles.fab} onPress={() => router.push('/add')} activeOpacity={0.85}>
-          <Text style={styles.fabText}>＋</Text>
+        <TouchableOpacity
+          style={styles.displayToggle}
+          onPress={() => setDisplayMode(displayMode === 'list' ? 'grid' : 'list')}
+          hitSlop={8}
+        >
+          <Text style={styles.displayToggleText}>{displayMode === 'list' ? '⊞' : '☰'}</Text>
         </TouchableOpacity>
-      </SafeAreaView>
-    </>
+      </View>
+
+      {/* 本棚リスト */}
+      {isEmpty ? (
+        <View style={styles.empty}>
+          <Text style={styles.emptyTitle}>本棚が空です</Text>
+          <Text style={styles.emptySubText}>バーコードまたは検索で本を追加してみましょう</Text>
+        </View>
+      ) : displayMode === 'list' ? (
+        <FlatList
+          key="list"
+          data={filteredItems}
+          keyExtractor={(item) => item.record.id}
+          contentContainerStyle={styles.listContent}
+          renderItem={({ item }) => (
+            <ListItem item={item} onPress={() => router.push(`/books/${item.book.id}`)} />
+          )}
+        />
+      ) : (
+        <FlatList
+          key="grid"
+          data={filteredItems}
+          keyExtractor={(item) => item.record.id}
+          numColumns={GRID_COLUMNS}
+          contentContainerStyle={styles.gridContent}
+          columnWrapperStyle={styles.gridRow}
+          renderItem={({ item }) => (
+            <GridItem item={item} onPress={() => router.push(`/books/${item.book.id}`)} />
+          )}
+        />
+      )}
+
+      {/* 追加ボタン */}
+      <TouchableOpacity style={styles.fab} onPress={() => router.push('/add')} activeOpacity={0.85}>
+        <Text style={styles.fabText}>＋</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 }
 
@@ -178,10 +164,6 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: Colors.ivory50,
-  },
-  headerButton: {
-    color: Colors.sage500,
-    fontSize: FontSize.body,
   },
 
   // Toolbar

@@ -57,6 +57,20 @@ export interface BookWithRecord {
 }
 
 /**
+ * 日記エントリ
+ * diary_entries テーブルに対応。読書中の本に対する日ごとのメモ（1本×1日につき1件）
+ */
+export interface DiaryEntry {
+  id: string;
+  userId: string;
+  bookId: string;
+  /** 'YYYY-MM-DD' */
+  entryDate: string;
+  memo: string;
+  createdAt: string;
+}
+
+/**
  * 本棚の表示モード
  */
 export type BookshelfDisplayMode = 'list' | 'grid';

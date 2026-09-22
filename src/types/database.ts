@@ -90,6 +90,40 @@ export interface Database {
           },
         ];
       };
+      diary_entries: {
+        Row: {
+          id: string;
+          user_id: string;
+          book_id: string;
+          entry_date: string;
+          memo: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          book_id: string;
+          entry_date: string;
+          memo: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          book_id?: string;
+          entry_date?: string;
+          memo?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'diary_entries_book_id_fkey';
+            columns: ['book_id'];
+            referencedRelation: 'books';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

@@ -15,6 +15,47 @@ Claude が作業を完了した際に追記するログ。新しいエントリ�
 
 ---
 
+## 2026-09-22 (日記機能の追加実装)
+
+### やったこと
+- 本棚とは別軸の新機能として「日記」を実装。カレンダー画面で日付を選択し、その日読書中の本にメモを記入・保存できる（1本×1日につき1件、上書き編集）
+- 「読書中」の判定は新ステータス値を追加せず、`started_at` 設定済み かつ（`finished_at` 未設定 または その日以降）で判定する `isReadingOnDate` ユーティリティを実装（unit test 7件、全て green）
+- DB: `diary_entries` テーブルの migration ファイルを作成（`user_id`/`book_id`/`entry_date` の UNIQUE 制約、RLS で本人の行のみ操作可能、インデックス3種）。Supabase MCP のツールがセッションに読み込まれていなかったため、Phase 3 と同じ「migration ファイル作成 → ユーザーが SQL Editor で手動実行」方式を採用
+- 型定義: `Database['diary_entries']`、`DiaryEntry` ドメイン型を追加
+- サービス層: `diaryService.ts`（`findByBookId` / `findByUserAndDate` / `upsert`）を既存の `bookService.ts`/`recordService.ts` と同じパターンで実装
+- フック: `useDiary`（カレンダー画面用、既存の `useBookshelf` を内部で再利用）、`useBookDetail`（本の詳細画面用）を新規作成
+- ナビゲーション: Expo Router の `(tabs)` グループを新設し、本棚 ⇄ カレンダーのタブバーを追加。`app/index.tsx` を `app/(tabs)/index.tsx` に移動し、ヘッダー設定を `app/(tabs)/_layout.tsx` に移植
+- カレンダー画面 `app/(tabs)/diary.tsx` を新規実装（`react-native-calendars` の月表示 + 日本語ロケール設定、選択日の読書中リスト、メモ編集用モーダル）
+- 本の詳細画面 `app/books/[id].tsx`（プレースホルダーだった）を更新し、書籍情報・読書ステータス・日記メモ一覧（日付降順）を表示するように実装（編集・削除は Phase 6 の残タスクとして対象外）
+- 依存関係追加: `@expo/vector-icons`（タブアイコン用、react-dom peer 依存衝突のため一部 `--legacy-peer-deps`）、`expo-font`（`@expo/vector-icons` の必須 peer dependency、`expo-doctor` の指摘で追加）、`react-native-calendars`
+- 初のテストファイル追加に伴い `tsconfig.json` に `"types": ["jest"]` を追加（`@types/jest` は既存の devDependency だったが未参照だったため `describe`/`it`/`expect` が型解決できずビルドエラーになっていた）
+- `docs/requirements.md` / `docs/database.md` / `docs/architecture.md` / `docs/ui.md` を日記機能の内容で更新
+- `npx tsc --noEmit` / `npx eslint .` / `npm test`（7件 green） すべて確認済み
+
+### 注意点
+- Supabase MCP サーバーは `claude mcp list` では接続確認できたが、本セッションのツール一覧には読み込まれていなかった。そのため `diary_entries` テーブルはまだ Supabase 上に作成されていない。ユーザーが Supabase SQL Editor で `supabase/migrations/20260923000000_diary_entries.sql` を実行する必要がある
+- `expo-doctor` は本件と無関係な既存の指摘（`adaptive-icon.png` アセット不在、一部パッケージのパッチバージョンずれ）も出しているが、今回のスコープ外のため未対応
+
+### 変更ファイル
+- `supabase/migrations/20260923000000_diary_entries.sql`（新規）
+- `src/types/database.ts`（変更: `diary_entries` テーブル型追加）
+- `src/types/index.ts`（変更: `DiaryEntry` 型追加）
+- `src/services/diaryService.ts`（新規）
+- `src/utils/isReadingOnDate.ts` / `isReadingOnDate.test.ts`（新規）
+- `src/hooks/useDiary.ts` / `useBookDetail.ts`（新規）
+- `app/(tabs)/_layout.tsx`（新規）
+- `app/(tabs)/index.tsx`（新規、`app/index.tsx` から移動）
+- `app/(tabs)/diary.tsx`（新規）
+- `app/index.tsx`（削除、`app/(tabs)/index.tsx` へ移動）
+- `app/_layout.tsx`（変更: `(tabs)` グループを登録）
+- `app/books/[id].tsx`（変更: プレースホルダーから書籍情報・日記表示に更新）
+- `tsconfig.json`（変更: `types: ["jest"]` 追加）
+- `package.json` / `package-lock.json`（変更: `@expo/vector-icons`, `expo-font`, `react-native-calendars` 追加）
+- `docs/requirements.md` / `docs/database.md` / `docs/architecture.md` / `docs/ui.md`（変更）
+- `tasks.md` / `progress.md`（変更）
+
+---
+
 ## 2026-09-16 (Expo SDK 54 → SDK 57 再アップグレード)
 
 ### やったこと
@@ -485,3 +526,10 @@ Claude が作業を完了した際に追記するログ。新しいエントリ�
 <!-- session:end 2026-09-16 23:30 -->
 <!-- session:end 2026-09-16 23:30 -->
 <!-- session:end 2026-09-16 23:45 -->
+<!-- session:end 2026-09-16 23:47 -->
+<!-- session:end 2026-09-16 23:50 -->
+<!-- session:end 2026-09-16 23:51 -->
+<!-- session:end 2026-09-23 00:28 -->
+<!-- session:end 2026-09-23 00:28 -->
+<!-- session:end 2026-09-23 00:58 -->
+<!-- session:end 2026-09-23 00:58 -->

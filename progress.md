@@ -7,7 +7,9 @@
 
 ## 現在のフェーズ
 
-**Phase 6: 本の詳細・編集・削除**（未着手）
+**Phase 6: 本の詳細・編集・削除**（詳細画面は日記機能の一部として実装済み。編集・削除は未着手）
+
+**追加機能: 日記（カレンダー）**（実装済み・DB migration 手動実行待ち）
 
 ---
 
@@ -21,9 +23,10 @@
 | Phase 3 | DB 構築（テーブル・RLS・CRUD） | ✅ 完了 |
 | Phase 4 | 書籍登録（バーコード・検索・書籍 API） | ✅ 完了 |
 | Phase 5 | 本棚（一覧・フィルター・表示切り替え） | ✅ 完了 |
-| Phase 6 | 本の詳細・編集・削除 | ⬜ 未着手 |
+| Phase 6 | 本の詳細・編集・削除 | 🔄 進行中（詳細画面完了、編集・削除は未着手） |
 | Phase 7 | 設定・アカウント削除 | ⬜ 未着手 |
 | Phase 8 | リリース（EAS Build・TestFlight・App Store） | ⬜ 未着手 |
+| 追加機能 | 日記（カレンダー、本棚とは別軸） | 🔄 進行中（実装完了、DB migration 手動実行 + 実機確認待ち） |
 
 **凡例:** ✅ 完了 / 🔄 進行中 / ⬜ 未着手 / 🚫 ブロック中
 
@@ -129,6 +132,29 @@ _順次詳細化_
 
 ---
 
+## 日記機能（追加）🔄
+
+本棚とは別軸の追加機能。読書中の本に対して日ごとのメモを記録する。
+
+### 完了したこと
+
+- `diary_entries` テーブル・RLS・インデックス設計（migration ファイル作成済み）
+- `DiaryEntry` 型定義、`src/services/diaryService.ts`
+- `src/utils/isReadingOnDate.ts`（「読書中」判定ロジック、unit test 付き）
+- `src/hooks/useDiary.ts`（カレンダー日別ビュー用）、`src/hooks/useBookDetail.ts`（本の詳細画面用）
+- タブナビゲーション新設（`app/(tabs)/_layout.tsx`、本棚 ⇄ カレンダー）。`app/index.tsx` を `app/(tabs)/index.tsx` に移動
+- カレンダー画面 `app/(tabs)/diary.tsx`（`react-native-calendars` 使用、日別の読書中リスト + メモ編集モーダル）
+- 本の詳細画面 `app/books/[id].tsx` に日記セクションを追加（Phase 6 の編集・削除は対象外）
+- 依存関係追加: `@expo/vector-icons`, `expo-font`, `react-native-calendars`
+- `npx tsc --noEmit` / `npx eslint .` / `npm test` すべて green
+
+### 残作業（手動）
+
+- Supabase SQL Editor で `supabase/migrations/20260923000000_diary_entries.sql` を実行
+- 実機/シミュレータでの動作確認（タブ切り替え・日付選択・メモ保存・詳細画面表示）
+
+---
+
 ## ブロッカー
 
 | 項目 | 影響フェーズ | 対応 |
@@ -140,4 +166,4 @@ _順次詳細化_
 
 ---
 
-_最終更新: 2026-09-16 (Expo SDK 54 → 57 に再アップグレード。実機 Expo Go の SDK 57 対応版更新を確認済み)_
+_最終更新: 2026-09-22 (日記機能を追加実装。`diary_entries` マイグレーションは手動実行待ち)_
