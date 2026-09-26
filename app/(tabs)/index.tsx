@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -5,157 +6,183 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
-  Dimensions,
+  Modal,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors, FontSize, Spacing, Radius, Shadow } from '../../src/constants/design';
-import { useBookshelf } from '../../src/hooks/useBookshelf';
-import type { BookWithRecord, ReadingStatus } from '../../src/types';
+import { useDiary } from '../../src/hooks/useDiary';
+import type { BookWithRecord } from '../../src/types';
+import { todayString } from '../../src/utils/date';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const GRID_COLUMNS = 3;
-const GRID_GAP = Spacing.s2;
-const GRID_PADDING = Spacing.s4;
-const GRID_ITEM_WIDTH =
-  (SCREEN_WIDTH - GRID_PADDING * 2 - GRID_GAP * (GRID_COLUMNS - 1)) / GRID_COLUMNS;
+LocaleConfig.locales.jp = {
+  monthNames: [
+    '1月', '2月', '3月', '4月', '5月', '6月',
+    '7月', '8月', '9月', '10月', '11月', '12月',
+  ],
+  monthNamesShort: [
+    '1月', '2月', '3月', '4月', '5月', '6月',
+    '7月', '8月', '9月', '10月', '11月', '12月',
+  ],
+  dayNames: ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'],
+  dayNamesShort: ['日', '月', '火', '水', '木', '金', '土'],
+  today: '今日',
+};
+LocaleConfig.defaultLocale = 'jp';
 
-const COVER_LIST_W = 56;
-const COVER_LIST_H = 80;
+const COVER_W = 48;
+const COVER_H = 68;
 
-type FilterOption = { label: string; value: 'all' | ReadingStatus };
-const FILTER_OPTIONS: FilterOption[] = [
-  { label: 'すべて', value: 'all' },
-  { label: 'これから', value: 'to_read' },
-  { label: '読了', value: 'finished' },
-];
-
-function StatusBadge({ status }: { status: ReadingStatus }) {
-  const isFinished = status === 'finished';
+function CoverPlaceholder() {
   return (
-    <View style={[styles.badge, isFinished ? styles.badgeFinished : styles.badgeToRead]}>
-      <Text style={[styles.badgeText, isFinished ? styles.badgeTextFinished : styles.badgeTextToRead]}>
-        {isFinished ? '読了' : 'これから'}
-      </Text>
-    </View>
-  );
-}
-
-function CoverPlaceholder({ width, height }: { width: number; height: number }) {
-  return (
-    <View style={[styles.coverPlaceholder, { width, height }]}>
+    <View style={styles.coverPlaceholder}>
       <Text style={styles.coverPlaceholderText}>No{'\n'}Cover</Text>
     </View>
   );
 }
 
-function ListItem({ item, onPress }: { item: BookWithRecord; onPress: () => void }) {
-  const { book, record } = item;
-  return (
-    <TouchableOpacity style={styles.listCard} onPress={onPress} activeOpacity={0.7}>
-      <View style={styles.listCoverWrap}>
-        {book.coverImage ? (
-          <Image source={{ uri: book.coverImage }} style={styles.listCover} resizeMode="cover" />
-        ) : (
-          <CoverPlaceholder width={COVER_LIST_W} height={COVER_LIST_H} />
-        )}
-      </View>
-      <View style={styles.listInfo}>
-        <Text style={styles.listTitle} numberOfLines={2}>{book.title}</Text>
-        <Text style={styles.listAuthors} numberOfLines={1}>
-          {book.authors.join('・') || '著者不明'}
-        </Text>
-        <StatusBadge status={record.status} />
-      </View>
-    </TouchableOpacity>
+export default function DiaryScreen() {
+  const [selectedDate, setSelectedDate] = useState(todayString());
+  const { booksReadingOnSelectedDate, entriesByBook, isLoading, saveMemo } =
+    useDiary(selectedDate);
+  const [editingItem, setEditingItem] = useState<BookWithRecord | null>(null);
+  const [memoDraft, setMemoDraft] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const markedDates = useMemo(
+    () => ({
+      [selectedDate]: { selected: true, selectedColor: Colors.sage500 },
+    }),
+    [selectedDate]
   );
-}
 
-function GridItem({ item, onPress }: { item: BookWithRecord; onPress: () => void }) {
-  const { book } = item;
-  const coverH = GRID_ITEM_WIDTH * (4 / 3);
-  return (
-    <TouchableOpacity style={[styles.gridItem, { width: GRID_ITEM_WIDTH }]} onPress={onPress} activeOpacity={0.7}>
-      <View style={[styles.gridCoverWrap, { width: GRID_ITEM_WIDTH, height: coverH }]}>
-        {book.coverImage ? (
-          <Image source={{ uri: book.coverImage }} style={{ width: GRID_ITEM_WIDTH, height: coverH }} resizeMode="cover" />
-        ) : (
-          <CoverPlaceholder width={GRID_ITEM_WIDTH} height={coverH} />
-        )}
-      </View>
-      <Text style={styles.gridTitle} numberOfLines={2}>{book.title}</Text>
-    </TouchableOpacity>
-  );
-}
+  function openEditor(item: BookWithRecord) {
+    setEditingItem(item);
+    setMemoDraft(entriesByBook[item.book.id]?.memo ?? '');
+  }
 
-export default function BookshelfScreen() {
-  const router = useRouter();
-  const { filteredItems, filter, displayMode, isLoading, setFilter, setDisplayMode } =
-    useBookshelf();
+  function closeEditor() {
+    setEditingItem(null);
+    setMemoDraft('');
+  }
 
-  const isEmpty = !isLoading && filteredItems.length === 0;
+  async function handleSave() {
+    if (!editingItem) return;
+    setIsSaving(true);
+    try {
+      await saveMemo(editingItem.book.id, memoDraft);
+      closeEditor();
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  const isEmpty = !isLoading && booksReadingOnSelectedDate.length === 0;
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
-      {/* フィルター + 表示切り替え */}
-      <View style={styles.toolbar}>
-        <View style={styles.filters}>
-          {FILTER_OPTIONS.map((opt) => (
-            <TouchableOpacity
-              key={opt.value}
-              style={[styles.filterTab, filter === opt.value && styles.filterTabActive]}
-              onPress={() => setFilter(opt.value)}
-            >
-              <Text style={[styles.filterTabText, filter === opt.value && styles.filterTabTextActive]}>
-                {opt.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <TouchableOpacity
-          style={styles.displayToggle}
-          onPress={() => setDisplayMode(displayMode === 'list' ? 'grid' : 'list')}
-          hitSlop={8}
-        >
-          <Text style={styles.displayToggleText}>{displayMode === 'list' ? '⊞' : '☰'}</Text>
-        </TouchableOpacity>
+      <Calendar
+        current={selectedDate}
+        markedDates={markedDates}
+        onDayPress={(day) => setSelectedDate(day.dateString)}
+        theme={{
+          backgroundColor: Colors.ivory50,
+          calendarBackground: Colors.ivory50,
+          textSectionTitleColor: Colors.ink400,
+          dayTextColor: Colors.ink900,
+          todayTextColor: Colors.sage600,
+          monthTextColor: Colors.ink900,
+          arrowColor: Colors.sage600,
+          selectedDayBackgroundColor: Colors.sage500,
+          selectedDayTextColor: Colors.white,
+        }}
+      />
+
+      <View style={styles.listHeader}>
+        <Text style={styles.listHeaderText}>{selectedDate} に読書中の本</Text>
       </View>
 
-      {/* 本棚リスト */}
       {isEmpty ? (
         <View style={styles.empty}>
-          <Text style={styles.emptyTitle}>本棚が空です</Text>
-          <Text style={styles.emptySubText}>バーコードまたは検索で本を追加してみましょう</Text>
+          <Text style={styles.emptyTitle}>読書中の本がありません</Text>
+          <Text style={styles.emptySubText}>本棚で「これから」の本を読み始めると表示されます</Text>
         </View>
-      ) : displayMode === 'list' ? (
-        <FlatList
-          key="list"
-          data={filteredItems}
-          keyExtractor={(item) => item.record.id}
-          contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => (
-            <ListItem item={item} onPress={() => router.push(`/books/${item.book.id}`)} />
-          )}
-        />
       ) : (
         <FlatList
-          key="grid"
-          data={filteredItems}
+          data={booksReadingOnSelectedDate}
           keyExtractor={(item) => item.record.id}
-          numColumns={GRID_COLUMNS}
-          contentContainerStyle={styles.gridContent}
-          columnWrapperStyle={styles.gridRow}
-          renderItem={({ item }) => (
-            <GridItem item={item} onPress={() => router.push(`/books/${item.book.id}`)} />
-          )}
+          contentContainerStyle={styles.listContent}
+          renderItem={({ item }) => {
+            const hasMemo = Boolean(entriesByBook[item.book.id]?.memo);
+            return (
+              <TouchableOpacity
+                style={styles.card}
+                onPress={() => openEditor(item)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.coverWrap}>
+                  {item.book.coverImage ? (
+                    <Image
+                      source={{ uri: item.book.coverImage }}
+                      style={styles.cover}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <CoverPlaceholder />
+                  )}
+                </View>
+                <View style={styles.cardInfo}>
+                  <Text style={styles.cardTitle} numberOfLines={2}>
+                    {item.book.title}
+                  </Text>
+                  <Text style={styles.cardMemoStatus}>
+                    {hasMemo ? 'メモあり' : 'メモを書く'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          }}
         />
       )}
 
-      {/* 追加ボタン */}
-      <TouchableOpacity style={styles.fab} onPress={() => router.push('/add')} activeOpacity={0.85}>
-        <Text style={styles.fabText}>＋</Text>
-      </TouchableOpacity>
+      <Modal visible={editingItem !== null} animationType="slide" transparent>
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle} numberOfLines={1}>
+              {editingItem?.book.title}
+            </Text>
+            <Text style={styles.modalDate}>{selectedDate}</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={memoDraft}
+              onChangeText={setMemoDraft}
+              placeholder="今日の読書メモを書きましょう"
+              placeholderTextColor={Colors.ink400}
+              multiline
+              textAlignVertical="top"
+            />
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.modalCancelButton} onPress={closeEditor}>
+                <Text style={styles.modalCancelText}>キャンセル</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalSaveButton}
+                onPress={handleSave}
+                disabled={isSaving}
+              >
+                <Text style={styles.modalSaveText}>{isSaving ? '保存中...' : '保存'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -165,44 +192,65 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.ivory50,
   },
-
-  // Toolbar
-  toolbar: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  listHeader: {
     paddingHorizontal: Spacing.s4,
-    paddingVertical: Spacing.s2,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.line200,
-    backgroundColor: Colors.ivory50,
+    paddingTop: Spacing.s4,
+    paddingBottom: Spacing.s2,
   },
-  filters: {
-    flex: 1,
-    flexDirection: 'row',
-    gap: Spacing.s2,
-  },
-  filterTab: {
-    paddingHorizontal: Spacing.s3,
-    paddingVertical: Spacing.s2,
-    borderRadius: Radius.chip,
-  },
-  filterTabActive: {
-    backgroundColor: Colors.sage100,
-  },
-  filterTabText: {
+  listHeaderText: {
     fontSize: FontSize.bodySmall,
-    color: Colors.ink400,
-  },
-  filterTabTextActive: {
-    color: Colors.sage600,
+    color: Colors.ink600,
     fontWeight: '600',
   },
-  displayToggle: {
-    padding: Spacing.s2,
+  listContent: {
+    padding: Spacing.s4,
+    gap: Spacing.s3,
+    paddingBottom: 100,
   },
-  displayToggleText: {
+  card: {
+    flexDirection: 'row',
+    backgroundColor: Colors.white,
+    borderRadius: Radius.card,
+    padding: Spacing.s4,
+    gap: Spacing.s4,
+    ...Shadow.card,
+  },
+  coverWrap: {
+    width: COVER_W,
+    height: COVER_H,
+    borderRadius: 6,
+    overflow: 'hidden',
+    flexShrink: 0,
+  },
+  cover: {
+    width: COVER_W,
+    height: COVER_H,
+  },
+  coverPlaceholder: {
+    width: COVER_W,
+    height: COVER_H,
+    backgroundColor: Colors.sage100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  coverPlaceholderText: {
+    fontSize: FontSize.micro,
+    color: Colors.ink400,
+    textAlign: 'center',
+  },
+  cardInfo: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: Spacing.s1,
+  },
+  cardTitle: {
     fontSize: FontSize.headline,
-    color: Colors.ink600,
+    fontWeight: '600',
+    color: Colors.ink900,
+  },
+  cardMemoStatus: {
+    fontSize: FontSize.bodySmall,
+    color: Colors.sage600,
   },
 
   // Empty
@@ -225,121 +273,64 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.s8,
   },
 
-  // List
-  listContent: {
-    padding: Spacing.s4,
-    gap: Spacing.s3,
-    paddingBottom: 100,
-  },
-  listCard: {
-    flexDirection: 'row',
-    backgroundColor: Colors.white,
-    borderRadius: Radius.card,
-    padding: Spacing.s4,
-    gap: Spacing.s4,
-    ...Shadow.card,
-  },
-  listCoverWrap: {
-    width: COVER_LIST_W,
-    height: COVER_LIST_H,
-    borderRadius: 6,
-    overflow: 'hidden',
-    flexShrink: 0,
-  },
-  listCover: {
-    width: COVER_LIST_W,
-    height: COVER_LIST_H,
-  },
-  listInfo: {
+  // Modal
+  modalOverlay: {
     flex: 1,
-    justifyContent: 'center',
-    gap: Spacing.s1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
-  listTitle: {
-    fontSize: FontSize.headline,
+  modalContent: {
+    backgroundColor: Colors.ivory50,
+    borderTopLeftRadius: Radius.modal,
+    borderTopRightRadius: Radius.modal,
+    padding: Spacing.s6,
+    gap: Spacing.s2,
+  },
+  modalTitle: {
+    fontSize: FontSize.title2,
     fontWeight: '600',
     color: Colors.ink900,
   },
-  listAuthors: {
+  modalDate: {
     fontSize: FontSize.bodySmall,
-    color: Colors.ink600,
-  },
-
-  // Badge
-  badge: {
-    alignSelf: 'flex-start',
-    borderRadius: Radius.chip,
-    paddingHorizontal: Spacing.s2,
-    paddingVertical: 2,
-    marginTop: Spacing.s1,
-  },
-  badgeToRead: {
-    backgroundColor: Colors.sage100,
-  },
-  badgeFinished: {
-    backgroundColor: Colors.ivory100,
-  },
-  badgeText: {
-    fontSize: FontSize.micro,
-    fontWeight: '600',
-  },
-  badgeTextToRead: {
-    color: Colors.sage600,
-  },
-  badgeTextFinished: {
-    color: Colors.ink600,
-  },
-
-  // Grid
-  gridContent: {
-    padding: GRID_PADDING,
-    paddingBottom: 100,
-  },
-  gridRow: {
-    gap: GRID_GAP,
-    marginBottom: GRID_GAP,
-  },
-  gridItem: {
-    gap: Spacing.s1,
-  },
-  gridCoverWrap: {
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  gridTitle: {
-    fontSize: FontSize.caption,
-    color: Colors.ink900,
-    lineHeight: 16,
-  },
-
-  // Cover placeholder
-  coverPlaceholder: {
-    backgroundColor: Colors.sage100,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  coverPlaceholderText: {
-    fontSize: FontSize.micro,
     color: Colors.ink400,
-    textAlign: 'center',
+    marginBottom: Spacing.s2,
   },
-
-  // FAB
-  fab: {
-    position: 'absolute',
-    right: Spacing.s6,
-    bottom: Spacing.s8,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.sage500,
-    alignItems: 'center',
+  modalInput: {
+    minHeight: 140,
+    borderWidth: 1,
+    borderColor: Colors.line200,
+    borderRadius: Radius.input,
+    padding: Spacing.s3,
+    fontSize: FontSize.body,
+    color: Colors.ink900,
+    backgroundColor: Colors.white,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: Spacing.s3,
+    marginTop: Spacing.s4,
+  },
+  modalCancelButton: {
+    paddingHorizontal: Spacing.s4,
+    minHeight: 44,
     justifyContent: 'center',
-    ...Shadow.card,
   },
-  fabText: {
-    fontSize: 28,
+  modalCancelText: {
+    fontSize: FontSize.body,
+    color: Colors.ink600,
+  },
+  modalSaveButton: {
+    backgroundColor: Colors.sage500,
+    borderRadius: Radius.button,
+    paddingHorizontal: Spacing.s6,
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  modalSaveText: {
+    fontSize: FontSize.body,
+    fontWeight: '600',
     color: Colors.white,
-    lineHeight: 34,
   },
 });

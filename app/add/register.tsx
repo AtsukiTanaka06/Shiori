@@ -17,6 +17,7 @@ import type { ReadingStatus } from '../../src/types';
 
 const STATUS_OPTIONS: { value: ReadingStatus; label: string }[] = [
   { value: 'to_read', label: 'これから読む' },
+  { value: 'reading', label: '読書中' },
   { value: 'finished', label: '読了' },
 ];
 
@@ -40,13 +41,13 @@ export default function RegisterScreen() {
       const { alreadyRegistered } = await register();
       if (alreadyRegistered) {
         Alert.alert('すでに登録済みです', 'この本はすでに本棚に追加されています。', [
-          { text: '本棚を見る', onPress: () => router.replace('/') },
+          { text: '本棚を見る', onPress: () => router.replace('/bookshelf') },
           { text: '閉じる', style: 'cancel', onPress: () => router.back() },
         ]);
         return;
       }
       Alert.alert('登録しました', `「${pendingBook?.title}」を本棚に追加しました。`, [
-        { text: '本棚を見る', onPress: () => router.replace('/') },
+        { text: '本棚を見る', onPress: () => router.replace('/bookshelf') },
       ]);
     } catch {
       Alert.alert('エラー', '登録に失敗しました。もう一度お試しください。');

@@ -32,7 +32,7 @@ Supabase PostgreSQL を使用。
 | id | uuid | ✓ | PK |
 | user_id | uuid | ✓ | FK: auth.users.id |
 | book_id | uuid | ✓ | FK: books.id |
-| status | text | ✓ | to_read / finished |
+| status | text | ✓ | to_read / reading / finished |
 | started_at | date | | 読み始め（任意） |
 | finished_at | date | | 読み終わり（任意） |
 | rating | integer | | 1〜5（任意） |

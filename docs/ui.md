@@ -71,17 +71,18 @@
 ### フィルターチップ
 
 ```
-すべて   これから   読了
+すべて   これから   読書中   読了
 ```
 
 選択時: sage100 背景 / sage600 テキスト
 
 ## ステータス表示
 
-| 値 | 表示 |
-|----|------|
-| to_read | これから |
-| finished | 読了 |
+| 値 | 表示 | バッジ色 |
+|----|------|---------|
+| to_read | これから | sage100 背景 / sage600 テキスト |
+| reading | 読書中 | coral100 背景 / coral400 テキスト |
+| finished | 読了 | ivory100 背景 / ink600 テキスト |
 
 ## 評価表示
 
@@ -89,10 +90,10 @@
 
 ## タブバー
 
-本棚 ⇄ カレンダーの2タブ（`@expo/vector-icons` の Ionicons を使用）。
+カレンダー ⇄ 本棚の2タブ（`@expo/vector-icons` の Ionicons を使用）。アプリ起動時のホームはカレンダー。
 
-- 本棚: `book-outline`
 - カレンダー: `calendar-outline`
+- 本棚: `book-outline`
 
 選択中は `sage600`、非選択は `ink400`。背景は `ivory50`、上ボーダーは `line200`。
 

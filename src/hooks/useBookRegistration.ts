@@ -6,6 +6,7 @@ import { bookApiService } from '../services/bookApiService';
 import { bookService } from '../services/bookService';
 import { recordService } from '../services/recordService';
 import type { Book, ReadingStatus } from '../types';
+import { todayString } from '../utils/date';
 
 export function useBookRegistration() {
   const [isLoading, setIsLoading] = useState(false);
@@ -53,11 +54,12 @@ export function useBookRegistration() {
       const existing = await recordService.findByUserAndBook(user.id, book.id);
       if (existing) return { alreadyRegistered: true };
 
-      // 読書記録を作成
+      // 読書記録を作成（「読書中」を選んだ場合は開始日を今日にする）
       await recordService.create({
         userId: user.id,
         bookId: book.id,
         status: status as ReadingStatus,
+        startedAt: status === 'reading' ? todayString() : undefined,
       });
 
       reset();

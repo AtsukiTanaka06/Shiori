@@ -147,11 +147,14 @@ _順次詳細化_
 - 本の詳細画面 `app/books/[id].tsx` に日記セクションを追加（Phase 6 の編集・削除は対象外）
 - 依存関係追加: `@expo/vector-icons`, `expo-font`, `react-native-calendars`
 - `npx tsc --noEmit` / `npx eslint .` / `npm test` すべて green
+- アプリ起動時のホーム画面を本棚からカレンダーに変更（`app/(tabs)/index.tsx` ⇄ `bookshelf.tsx` を入れ替え、`register.tsx` の遷移先を修正）
+
+- `diary_entries` migration を Supabase MCP 経由で本番プロジェクトに適用済み（RLS有効化・テーブル作成を確認済み。セキュリティアドバイザーに新規指摘なし）
+- 読書ステータスに `reading`（読書中）を追加。DB制約（`reading_records_status_check`）も Supabase MCP 経由で更新済み。登録時に「読書中」を選ぶと `started_at` を自動設定し、カレンダー機能（`isReadingOnDate`）と連動するようにした
 
 ### 残作業（手動）
 
-- Supabase SQL Editor で `supabase/migrations/20260923000000_diary_entries.sql` を実行
-- 実機/シミュレータでの動作確認（タブ切り替え・日付選択・メモ保存・詳細画面表示）
+- 実機/シミュレータでの動作確認（タブ切り替え・日付選択・メモ保存・詳細画面表示・ホーム画面がカレンダーになっていること・「読書中」ステータスの表示とカレンダー連動）
 
 ---
 
@@ -166,4 +169,4 @@ _順次詳細化_
 
 ---
 
-_最終更新: 2026-09-22 (日記機能を追加実装。`diary_entries` マイグレーションは手動実行待ち)_
+_最終更新: 2026-09-23 (読書ステータスに「読書中」を追加。DB migrationはSupabase MCP経由で適用済み)_

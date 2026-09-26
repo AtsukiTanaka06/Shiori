@@ -4,6 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors, FontSize, Spacing, Radius, Shadow } from '../../src/constants/design';
 import { useBookDetail } from '../../src/hooks/useBookDetail';
+import type { ReadingStatus } from '../../src/types';
+
+const STATUS_LABEL: Record<ReadingStatus, string> = {
+  to_read: 'これから',
+  reading: '読書中',
+  finished: '読了',
+};
 
 const COVER_W = 120;
 const COVER_H = 170;
@@ -32,7 +39,18 @@ export default function BookDetailScreen() {
     );
   }
 
-  const isFinished = record?.status === 'finished';
+  const badgeStyle =
+    record?.status === 'finished'
+      ? styles.badgeFinished
+      : record?.status === 'reading'
+        ? styles.badgeReading
+        : styles.badgeToRead;
+  const badgeTextStyle =
+    record?.status === 'finished'
+      ? styles.badgeTextFinished
+      : record?.status === 'reading'
+        ? styles.badgeTextReading
+        : styles.badgeTextToRead;
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
@@ -51,12 +69,8 @@ export default function BookDetailScreen() {
             <Text style={styles.title}>{book.title}</Text>
             <Text style={styles.authors}>{book.authors.join('・') || '著者不明'}</Text>
             {record && (
-              <View style={[styles.badge, isFinished ? styles.badgeFinished : styles.badgeToRead]}>
-                <Text
-                  style={[styles.badgeText, isFinished ? styles.badgeTextFinished : styles.badgeTextToRead]}
-                >
-                  {isFinished ? '読了' : 'これから'}
-                </Text>
+              <View style={[styles.badge, badgeStyle]}>
+                <Text style={[styles.badgeText, badgeTextStyle]}>{STATUS_LABEL[record.status]}</Text>
               </View>
             )}
           </View>
@@ -153,6 +167,9 @@ const styles = StyleSheet.create({
   badgeToRead: {
     backgroundColor: Colors.sage100,
   },
+  badgeReading: {
+    backgroundColor: Colors.coral100,
+  },
   badgeFinished: {
     backgroundColor: Colors.ivory100,
   },
@@ -162,6 +179,9 @@ const styles = StyleSheet.create({
   },
   badgeTextToRead: {
     color: Colors.sage600,
+  },
+  badgeTextReading: {
+    color: Colors.coral400,
   },
   badgeTextFinished: {
     color: Colors.ink600,

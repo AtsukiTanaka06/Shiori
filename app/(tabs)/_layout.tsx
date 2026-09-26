@@ -20,9 +20,15 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Shiori',
-          tabBarLabel: '本棚',
-          tabBarIcon: ({ color, size }) => <Ionicons name="book-outline" size={size} color={color} />,
+          title: 'カレンダー',
+          tabBarLabel: ({ focused, color }) => (
+            <Text style={[styles.tabLabel, { color }, focused && styles.tabLabelActive]}>
+              カレンダー
+            </Text>
+          ),
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={size} color={color} />
+          ),
           headerRight: () => (
             <TouchableOpacity onPress={() => router.push('/settings')} hitSlop={8}>
               <Text style={styles.headerButton}>設定</Text>
@@ -31,12 +37,16 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="diary"
+        name="bookshelf"
         options={{
-          title: 'カレンダー',
-          tabBarLabel: 'カレンダー',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
+          title: '本棚',
+          tabBarLabel: ({ focused, color }) => (
+            <Text style={[styles.tabLabel, { color }, focused && styles.tabLabelActive]}>
+              本棚
+            </Text>
+          ),
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'book' : 'book-outline'} size={size} color={color} />
           ),
         }}
       />
@@ -48,5 +58,11 @@ const styles = StyleSheet.create({
   headerButton: {
     color: Colors.sage500,
     fontSize: FontSize.body,
+  },
+  tabLabel: {
+    fontSize: FontSize.micro,
+  },
+  tabLabelActive: {
+    fontWeight: '700',
   },
 });

@@ -76,11 +76,13 @@ export const recordService = {
     userId: string;
     bookId: string;
     status: ReadingStatus;
+    startedAt?: string;
   }): Promise<ReadingRecord> {
     const insert: RecordInsert = {
       user_id: params.userId,
       book_id: params.bookId,
       status: params.status,
+      started_at: params.startedAt ?? null,
     };
     const { data, error } = await supabase
       .from('reading_records')

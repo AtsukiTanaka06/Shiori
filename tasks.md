@@ -70,7 +70,7 @@ _なし_
 
 ### Phase 5 — 本棚
 
-- [x] 本棚画面 — リスト表示（`app/(tabs)/index.tsx`）
+- [x] 本棚画面 — リスト表示（`app/(tabs)/bookshelf.tsx`）
 - [x] 本棚画面 — カバーグリッド表示
 - [x] 表示切り替え（リスト / グリッド）
 - [x] ステータスフィルター（すべて / これから / 読了）
@@ -97,8 +97,19 @@ _なし_
 - [x] カレンダー画面（`app/(tabs)/diary.tsx`）— 日別の読書中リスト・メモ入力モーダル
 - [x] 本の詳細画面に日記セクション追加
 - [x] `@expo/vector-icons` / `expo-font` / `react-native-calendars` 追加
-- [ ] Supabase SQL Editor で `20260923000000_diary_entries.sql` を実行（手動）
+- [x] アプリ起動時のホーム画面をカレンダーに変更（`app/(tabs)/index.tsx` ⇄ `bookshelf.tsx` を入れ替え）
+- [x] `diary_entries` migration を Supabase MCP 経由で本番プロジェクトに適用（`apply_migration`、RLS有効化・テーブル作成を確認済み）
+- [x] タブバーで選択中タブが分かるように改善（選択時はアイコンを塗りつぶし表示 + ラベル太字）
 - [ ] 実機/シミュレータでの動作確認（タブ切り替え・日付選択・メモ保存・詳細画面表示）
+
+### ステータス「読書中」追加
+
+- [x] `ReadingStatus` に `reading` を追加（`src/types/index.ts`, `src/types/database.ts`）
+- [x] `reading_records_status_check` 制約更新 migration を作成・Supabase MCP 経由で適用済み
+- [x] 登録時に「読書中」を選ぶと `started_at` を自動設定（`recordService.create` / `useBookRegistration`）
+- [x] 登録画面・本棚フィルター/バッジ・本の詳細画面のUIに「読書中」を追加
+- [x] `docs/requirements.md` / `docs/database.md` / `docs/ui.md` 更新
+- [ ] 実機/シミュレータでの動作確認（「読書中」で登録 → 本棚バッジ表示 → カレンダーに表示されること）
 
 ### Phase 7 — 設定・アカウント
 
@@ -127,4 +138,4 @@ _なし_
 
 ---
 
-_最終更新: 2026-09-22 (日記機能を追加実装、`diary_entries` マイグレーションは手動実行待ち)_
+_最終更新: 2026-09-23 (読書ステータスに「読書中」を追加。DB migrationはSupabase MCP経由で適用済み)_

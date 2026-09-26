@@ -9,9 +9,10 @@ export interface AuthUser {
 /**
  * 読書ステータス
  * - to_read: これから読む
+ * - reading: 読書中
  * - finished: 読了
  */
-export type ReadingStatus = 'to_read' | 'finished';
+export type ReadingStatus = 'to_read' | 'reading' | 'finished';
 
 /**
  * 書籍情報

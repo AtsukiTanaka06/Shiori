@@ -49,7 +49,7 @@ export interface Database {
           id: string;
           user_id: string;
           book_id: string;
-          status: 'to_read' | 'finished';
+          status: 'to_read' | 'reading' | 'finished';
           started_at: string | null;
           finished_at: string | null;
           rating: number | null;
@@ -61,7 +61,7 @@ export interface Database {
           id?: string;
           user_id: string;
           book_id: string;
-          status: 'to_read' | 'finished';
+          status: 'to_read' | 'reading' | 'finished';
           started_at?: string | null;
           finished_at?: string | null;
           rating?: number | null;
@@ -73,7 +73,7 @@ export interface Database {
           id?: string;
           user_id?: string;
           book_id?: string;
-          status?: 'to_read' | 'finished';
+          status?: 'to_read' | 'reading' | 'finished';
           started_at?: string | null;
           finished_at?: string | null;
           rating?: number | null;

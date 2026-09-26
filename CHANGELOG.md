@@ -15,6 +15,76 @@ Claude が作業を完了した際に追記するログ。新しいエントリ�
 
 ---
 
+## 2026-09-23 (タブバーで選択中タブが分かるように改善)
+
+### やったこと
+- タブバー（`app/(tabs)/_layout.tsx`）で、選択中タブが `tabBarActiveTintColor`（`sage600`）の色変化だけでは分かりにくかったため視認性を改善
+- 選択中タブはアイコンを塗りつぶし版（`calendar` / `book`）に切り替え、非選択時はアウトライン版（`calendar-outline` / `book-outline`）のまま
+- ラベルも選択中は太字（`fontWeight: '700'`）にするため `tabBarLabel` を関数化
+- `npx tsc --noEmit` / `npx eslint .` 確認済み
+
+### 変更ファイル
+- `app/(tabs)/_layout.tsx`（変更）
+
+---
+
+## 2026-09-23 (ステータスに「読書中」を追加)
+
+### やったこと
+- 読書ステータスに `reading`（読書中）を追加（従来は `to_read` / `finished` の2値）
+- `src/types/index.ts` の `ReadingStatus` と `src/types/database.ts` の `reading_records` 型定義を更新
+- DB: `reading_records_status_check` 制約を `to_read` / `reading` / `finished` に変更する migration を作成し、Supabase MCP 経由で本番プロジェクトに適用済み（既存データへの影響なし、`get_advisors` で新規指摘なしを確認）
+- `recordService.create` に `startedAt` パラメータを追加。登録画面で「読書中」を選ぶと `started_at` に今日の日付を自動設定するようにした（`useBookRegistration`）。これによりカレンダー機能の `isReadingOnDate` 判定と整合する
+- `src/utils/date.ts` に `todayString()` を切り出し（`app/(tabs)/index.tsx` のローカル関数と `useBookRegistration` の両方から共通利用）
+- UI更新: 登録画面のステータス選択（`app/add/register.tsx`）、本棚のフィルターチップ・バッジ（`app/(tabs)/bookshelf.tsx`）、本の詳細画面のバッジ（`app/books/[id].tsx`）に「読書中」を追加。バッジ色は accent の coral（`Colors.coral100`/`coral400`）を使用
+- `docs/requirements.md`（「読書中はステータスとして設けない」という旧方針を撤回・更新）、`docs/database.md`、`docs/ui.md`（フィルターチップ・ステータス表示・タブバー順序）を更新
+- `npx tsc --noEmit` / `npx eslint .` / `npm test`（7件 green） すべて確認済み
+
+### 変更ファイル
+- `supabase/migrations/20260923010000_add_reading_status.sql`（新規）
+- `src/types/index.ts`（変更）
+- `src/types/database.ts`（変更）
+- `src/services/recordService.ts`（変更）
+- `src/hooks/useBookRegistration.ts`（変更）
+- `src/utils/date.ts`（新規）
+- `app/(tabs)/index.tsx`（変更、`todayString` を `src/utils/date.ts` に移動）
+- `app/add/register.tsx`（変更）
+- `app/(tabs)/bookshelf.tsx`（変更）
+- `app/books/[id].tsx`（変更）
+- `docs/requirements.md` / `docs/database.md` / `docs/ui.md`（変更）
+
+---
+
+## 2026-09-23 (diary_entries migration をSupabaseに適用)
+
+### やったこと
+- アプリ起動時のホーム画面変更後、実機で `diary_entries` テーブル未作成によるエラー（`PGRST205: Could not find the table 'public.diary_entries'`）を確認
+- 今回のセッションでは Supabase MCP ツールが利用可能だったため、`supabase/migrations/20260923000000_diary_entries.sql` の内容をユーザー承認のうえ `apply_migration` で本番プロジェクトに適用
+- `list_tables` で `public.diary_entries`（RLS有効）の作成を確認、`get_advisors`（security）で本件に起因する新規指摘がないことを確認（既存の Leaked Password Protection 警告のみ）
+
+### 変更ファイル
+- なし（Supabase 側のスキーマ変更のみ。`supabase/migrations/20260923000000_diary_entries.sql` は既存ファイルをそのまま適用）
+
+---
+
+## 2026-09-23 (アプリ起動時のホーム画面をカレンダーに変更)
+
+### やったこと
+- アプリ起動時（ログイン後・タブグループの初期表示）のホーム画面を本棚からカレンダー（日記）に変更
+- `app/(tabs)/index.tsx`（本棚）を `app/(tabs)/bookshelf.tsx` にリネームし、`app/(tabs)/diary.tsx` を `app/(tabs)/index.tsx` にリネーム（Expo Router のファイルベースルーティングにより `/` がカレンダー画面になる）
+- `app/(tabs)/_layout.tsx` のタブ定義を更新（`index` = カレンダー、`bookshelf` = 本棚。設定画面へのヘッダーボタンはホームになったカレンダー側に移植）
+- `app/add/register.tsx` の「本棚を見る」ボタンの遷移先を `/` から `/bookshelf` に変更（ルート入れ替えにより `/` が本棚を指さなくなったため）
+- `.expo/types/router.d.ts`（Expo CLI 自動生成、Git 管理対象外）を `npx expo start` の一時起動で再生成し、型チェックを通過することを確認
+- `npx tsc --noEmit` / `npx eslint .` / `npm test`（Jest, 7件 green） すべて確認済み
+
+### 変更ファイル
+- `app/(tabs)/index.tsx`（旧 `diary.tsx`、リネーム）
+- `app/(tabs)/bookshelf.tsx`（旧 `index.tsx`、リネーム）
+- `app/(tabs)/_layout.tsx`（変更）
+- `app/add/register.tsx`（変更）
+
+---
+
 ## 2026-09-22 (日記機能の追加実装)
 
 ### やったこと
@@ -533,3 +603,9 @@ Claude が作業を完了した際に追記するログ。新しいエントリ�
 <!-- session:end 2026-09-23 00:28 -->
 <!-- session:end 2026-09-23 00:58 -->
 <!-- session:end 2026-09-23 00:58 -->
+<!-- session:end 2026-09-23 01:01 -->
+<!-- session:end 2026-09-23 21:04 -->
+<!-- session:end 2026-09-23 21:11 -->
+<!-- session:end 2026-09-23 21:26 -->
+<!-- session:end 2026-09-23 21:33 -->
+<!-- session:end 2026-09-26 23:50 -->
