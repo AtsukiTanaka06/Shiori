@@ -129,14 +129,21 @@ _なし_
 
 ## 未決定・ブロッカー
 
-- [ ] 書籍 API の最終選定（OpenBD vs Google Books API 等）— Phase 4 開始前に決定必須
-- [ ] 表紙画像の保存方法（Supabase Storage vs API URL 直接参照）
-- [ ] `books` テーブルの重複 ISBN 戦略（共有 vs ユーザーごとに作成）
-- [ ] Apple Developer Program 登録（EAS Build に必要）
+- [x] 書籍 API の最終選定 → OpenBD 第一候補 + Google Books フォールバックで決定・実装済み（`bookApiService.ts`）
+- [x] 表紙画像の保存方法 → Supabase Storage は使わず、API から取得した URL を `books.cover_image` に直接保存する方式に決定
+- [x] `books` テーブルの重複 ISBN 戦略 → 全ユーザー共有・同一 ISBN は1行のみに決定（`bookService.findOrCreate`）
+- [ ] Apple Developer Program 登録（Phase 2.5 の Sign in with Apple・Phase 8 の EAS Build/TestFlight/App Store 申請の両方をブロック中。唯一の残ブロッカー）
 - [x] Node.js バージョンアップ（Nodist 経由で `22.11.0` に切り替え済み。SDK 57 ツールチェイン要件 `>=20.19.4` を満たす）
 - [x] Expo SDK 57 → 54 にダウングレード（Expo Go アプリのバージョンと合わせるため）
 - [x] Expo SDK 54 → 57 に再アップグレード（実機 Expo Go を SDK 57 対応版に更新後）
 
+## 積み残しリスク（2026-09-29 計画振り返り）
+
+- [ ] 実機/シミュレータ動作確認が2件未消化（日記機能・Phase 6 編集/削除）。新機能着手より優先して消化する
+- [ ] Integration Test / E2E Test が未着手（`.claude/rules/testing.md` 要求）。Phase 8 前に着手を検討
+- [ ] Phase 7（アカウント削除）は Phase 8 着手前に完了させる（App Store 審査要件）
+- [x] `books` の DELETE が `reading_records`/`diary_entries` に `ON DELETE CASCADE` していたため、任意の認証済みユーザーが共有書籍を削除すると他ユーザーのデータまで消える問題を発見・修正済み（`book_id` 側の FK を `RESTRICT` に変更。migration: `20260929000000_restrict_books_delete_cascade.sql`、Supabase MCP経由で本番適用済み。security advisor 新規指摘なし）
+
 ---
 
-_最終更新: 2026-09-28 (Phase 6 編集画面・削除機能を実装。コードレビューで指摘されたBLOCKER 2件（編集後の詳細画面が更新されない／削除時に日記メモが残る）を修正済み)_
+_最終更新: 2026-09-29 (計画振り返り。書籍API・表紙画像・重複ISBNの未決定事項を実装済みとして解決済みに更新。security-reviewerエージェントの指摘を受け、booksテーブル削除のCASCADE問題をRESTRICTに修正)_

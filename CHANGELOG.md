@@ -15,6 +15,24 @@ Claude が作業を完了した際に追記するログ。新しいエントリ�
 
 ---
 
+## 2026-09-29 (計画振り返り・booksテーブル削除のCASCADE問題を修正)
+
+### やったこと
+- `plan.md` を実態に合わせて全面更新（Phase 0〜5完了、Phase 6実装完了、追加機能の日記/カレンダーを反映）。旧「未決定事項」3件（書籍API・表紙画像保存方法・重複ISBN戦略）は既に実装で解決済みだったため解決済みに更新
+- `tasks.md` / `progress.md` のブロッカー・未決定事項セクションを同様に更新。残ブロッカーは Apple Developer Program 登録のみと明確化
+- 積み残しリスクとして「実機確認2件未消化」「Integration/E2E Test未着手」「Phase 7はPhase 8前に必須」を明記
+- `.claude/agents/reviewer.md` に「画面遷移後のデータ整合性（stale state）」のチェック項目を追加（前セッションで見つけたBLOCKERの再発防止）
+- `.claude/agents/security-reviewer.md` の books RLS チェック項目に、`books_delete_authenticated`（`USING (true)`）+ `ON DELETE CASCADE` の組み合わせで任意の認証済みユーザーが他ユーザーのデータを巻き込んで削除できる既知のリスクを明記
+- 上記のセキュリティリスクを実際に修正: `reading_records.book_id` / `diary_entries.book_id` の外部キーを `ON DELETE CASCADE` → `ON DELETE RESTRICT` に変更する migration を作成・Supabase MCP経由で本番適用（`get_advisors` で新規指摘なしを確認。`user_id` 側の CASCADE は変更せず維持）
+
+### 変更ファイル
+- `plan.md`（全面更新）
+- `tasks.md`, `progress.md`（更新）
+- `.claude/agents/reviewer.md`, `.claude/agents/security-reviewer.md`（更新）
+- `supabase/migrations/20260929000000_restrict_books_delete_cascade.sql`（新規）
+
+---
+
 ## 2026-09-28 (Phase 6: 本の編集・削除画面を実装)
 
 ### やったこと
@@ -639,3 +657,6 @@ Claude が作業を完了した際に追記するログ。新しいエントリ�
 <!-- session:end 2026-09-28 23:49 -->
 <!-- session:end 2026-09-28 23:54 -->
 <!-- session:end 2026-09-28 23:56 -->
+<!-- session:end 2026-09-28 23:59 -->
+<!-- session:end 2026-09-29 00:05 -->
+<!-- session:end 2026-09-29 00:09 -->

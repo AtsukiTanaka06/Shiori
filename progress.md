@@ -178,13 +178,26 @@ _順次詳細化_
 
 ## ブロッカー
 
-| 項目 | 影響フェーズ | 対応 |
+| 項目 | 影響フェーズ | 状況 |
 |------|------------|------|
-| 書籍 API の最終選定 | Phase 4 | Phase 4 開始前に OpenBD を評価して決定 |
-| 表紙画像の保存方法 | Phase 3–4 | 設計時に決定 |
-| `books` テーブルの重複 ISBN 戦略 | Phase 3 | DB 設計時に決定 |
-| Apple Developer Program 登録 | Phase 8 | リリース前に登録 |
+| 書籍 API の最終選定 | Phase 4 | ✅ 解決済み（OpenBD 第一候補 + Google Books フォールバック、実装済み） |
+| 表紙画像の保存方法 | Phase 3–4 | ✅ 解決済み（Supabase Storage は使わず API の URL を直接保存） |
+| `books` テーブルの重複 ISBN 戦略 | Phase 3 | ✅ 解決済み（全ユーザー共有・ISBN一意、`findOrCreate`） |
+| Apple Developer Program 登録 | Phase 2.5, Phase 8 | 🚫 未対応（唯一の残ブロッカー。外部の登録作業が必要） |
+
+## 積み残しリスク（2026-09-29 計画振り返り）
+
+- 実機/シミュレータ動作確認が2件未消化（日記機能：2026-09-23〜、Phase 6 編集/削除：2026-09-28〜）。次セッションでは新機能着手より優先して消化を推奨
+- Integration Test / E2E Test が未着手（`testing.md` は3種のテストを要求。現状は Unit Test のみ、2ファイル12ケース）。Phase 8 前に着手を検討
+- Phase 7（アカウント削除）は App Store 審査要件のため、Phase 8 着手前に必ず完了させる
+- ~~`books` 削除時の CASCADE が他ユーザーのデータを巻き込む問題~~ → 解決済み（下記参照）
+
+## セキュリティ修正: books 削除の CASCADE 問題
+
+`security-reviewer` エージェントの指摘を受けて発見。`books` は全ユーザー共有リソースで `books_delete_authenticated` ポリシーは任意の認証済みユーザーに削除を許可していたが、`reading_records.book_id` / `diary_entries.book_id` が `ON DELETE CASCADE` だったため、1人のユーザーが共有書籍を削除すると他ユーザーの読書記録・日記メモまで連鎖的に消える欠陥があった。
+
+`book_id` 側の外部キーを `RESTRICT` に変更する migration（`20260929000000_restrict_books_delete_cascade.sql`）を作成し、Supabase MCP 経由で本番プロジェクトに適用済み。`get_advisors`（security）で新規指摘なしを確認。`user_id` 側の CASCADE はアカウント削除時に必要な挙動のため変更していない。
 
 ---
 
-_最終更新: 2026-09-28 (Phase 6 編集画面・削除機能を実装完了。コードレビューでBLOCKER 2件を検出・修正)_
+_最終更新: 2026-09-29 (計画振り返り。plan.md を実態に合わせて全面更新し、ブロッカー3件を解決済みに更新。security-reviewerエージェントの指摘を受けbooksテーブル削除のCASCADE問題を修正)_

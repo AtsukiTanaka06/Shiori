@@ -29,6 +29,7 @@ Supabase + React Native + Expo アプリケーションのセキュリティを�
 - すべてのテーブルに RLS が有効か
 - `reading_records` の RLS：`user_id = auth.uid()` が設定されているか
 - `books` テーブルの RLS ポリシーが適切か
+  - 既知のリスク：`books` は全ユーザー共有リソースだが、`books_delete_authenticated` は `USING (true)` のため任意の認証済みユーザーが他ユーザー使用中の書籍行を削除できる。`books.id` は `reading_records.book_id` から `ON DELETE CASCADE` されるため、削除されると他ユーザーの読書記録・日記メモまで巻き込んで消える。DELETE を無効化する、または所有者概念を導入するなどの対応要否を毎回確認する
 
 ### シークレット管理
 - APIキーがソースコードにハードコードされていないか
