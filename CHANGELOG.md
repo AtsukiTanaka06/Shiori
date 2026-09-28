@@ -15,6 +15,32 @@ Claude が作業を完了した際に追記するログ。新しいエントリ�
 
 ---
 
+## 2026-09-28 (Phase 6: 本の編集・削除画面を実装)
+
+### やったこと
+- 本の詳細画面（`app/books/[id].tsx`）に編集画面への導線（ヘッダーの編集アイコン）を追加
+- 編集画面（`app/books/[id]/edit.tsx`）を実装 — ステータス（これから読む/読書中/読了）・評価（★1〜5）・感想・メモを編集し保存
+- `src/hooks/useBookEdit.ts`（新規）— 編集フォームの状態管理、保存（`recordService.update`）、削除（`recordService.delete` + `diaryService.deleteByBookId`）
+- 削除は確認ダイアログ（破壊的操作）付き。読書記録と紐づく日記メモを削除し、本棚に戻る
+- `src/utils/resolveStatusDates.ts`（新規）— ステータス変更時に開始日・終了日を自動設定するロジックを純粋関数として切り出し、unit test を追加（`resolveStatusDates.test.ts`）
+- `/code-review` によるレビューで BLOCKER 2件を検出・修正
+  - 編集して保存→戻っても詳細画面が再取得されず古い表示のままだった → `useFocusEffect` でフォーカス時に `refresh()` する方式に変更（`useBookDetail.ts` の自動 `useEffect` は撤去し、呼び出し側でのフォーカス時取得に統一）
+  - 削除時に日記メモ（`diary_entries`）が削除されず、同じ本を再登録すると古い日記が復活してしまう問題 → `diaryService.deleteByBookId` を追加し、削除処理に組み込み
+- `npx tsc --noEmit` / `npx eslint .` / `npm run test:ci`（12 tests）すべて green
+
+### 変更ファイル
+- `app/books/[id].tsx`（変更）
+- `app/books/[id]/edit.tsx`（変更・実装）
+- `src/hooks/useBookEdit.ts`（新規）
+- `src/hooks/useBookDetail.ts`（変更）
+- `src/services/diaryService.ts`（変更）
+- `src/utils/resolveStatusDates.ts`（新規）
+- `src/utils/resolveStatusDates.test.ts`（新規）
+- `docs/ui.md`（変更）
+- `tasks.md`, `progress.md`（更新）
+
+---
+
 ## 2026-09-23 (タブバーで選択中タブが分かるように改善)
 
 ### やったこと
@@ -609,3 +635,7 @@ Claude が作業を完了した際に追記するログ。新しいエントリ�
 <!-- session:end 2026-09-23 21:26 -->
 <!-- session:end 2026-09-23 21:33 -->
 <!-- session:end 2026-09-26 23:50 -->
+<!-- session:end 2026-09-28 23:46 -->
+<!-- session:end 2026-09-28 23:49 -->
+<!-- session:end 2026-09-28 23:54 -->
+<!-- session:end 2026-09-28 23:56 -->

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { bookService } from '../services/bookService';
 import { diaryService } from '../services/diaryService';
@@ -8,6 +8,7 @@ import type { Book, DiaryEntry, ReadingRecord } from '../types';
 
 /**
  * 本の詳細画面用フック。書籍情報・読書記録・日記エントリをまとめて取得する。
+ * 画面のフォーカス時に呼び出し側で `refresh` を呼ぶこと（編集画面からの戻り時に最新化するため）。
  */
 export function useBookDetail(bookId: string) {
   const user = useAuthStore((s) => s.user);
@@ -32,10 +33,6 @@ export function useBookDetail(bookId: string) {
       setIsLoading(false);
     }
   }, [user, bookId]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
 
   return { book, record, diaryEntries, isLoading, refresh: load };
 }

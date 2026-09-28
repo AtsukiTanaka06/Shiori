@@ -61,4 +61,14 @@ export const diaryService = {
     if (error) throw error;
     return toDiaryEntry(data);
   },
+
+  /** 本×ユーザーに紐づく日記エントリを全削除（本の削除時に使用） */
+  async deleteByBookId(userId: string, bookId: string): Promise<void> {
+    const { error } = await supabase
+      .from('diary_entries')
+      .delete()
+      .eq('user_id', userId)
+      .eq('book_id', bookId);
+    if (error) throw error;
+  },
 };

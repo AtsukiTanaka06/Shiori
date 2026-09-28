@@ -1,5 +1,7 @@
-import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors, FontSize, Spacing, Radius, Shadow } from '../../src/constants/design';
@@ -21,7 +23,14 @@ const COVER_H = 170;
  */
 export default function BookDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { book, record, diaryEntries, isLoading } = useBookDetail(id);
+  const router = useRouter();
+  const { book, record, diaryEntries, isLoading, refresh } = useBookDetail(id);
+
+  useFocusEffect(
+    useCallback(() => {
+      void refresh();
+    }, [refresh])
+  );
 
   if (isLoading) {
     return (
@@ -54,6 +63,14 @@ export default function BookDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
+      <View style={styles.topBar}>
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Ionicons name="chevron-back" size={24} color={Colors.ink900} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push(`/books/${id}/edit`)} hitSlop={8}>
+          <Ionicons name="create-outline" size={22} color={Colors.sage600} />
+        </TouchableOpacity>
+      </View>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <View style={styles.coverWrap}>
@@ -110,6 +127,13 @@ const styles = StyleSheet.create({
   emptyText: {
     color: Colors.ink400,
     fontSize: FontSize.body,
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.s4,
+    paddingVertical: Spacing.s2,
   },
   content: {
     padding: Spacing.s4,
