@@ -121,8 +121,8 @@ _なし_
 
 - [x] `lp/index.html` / `lp/style.css` 作成（GitHub Pages 用、デザイントークン準拠）
 - [x] `.github/workflows/deploy-pages.yml` 作成（`lp/` を GitHub Actions でデプロイ）
-- [ ] GitHub リポジトリ設定で Pages の Source を `GitHub Actions` に変更（Settings → Pages）— ユーザー作業
-- [ ] 公開後の表示確認
+- [x] GitHub リポジトリ設定で Pages の Source を `GitHub Actions` に変更（Settings → Pages）— ユーザー作業
+- [x] 公開後の表示確認（`https://atsukitanaka06.github.io/Shiori/`）
 
 ### Phase 8 — リリース
 
@@ -153,4 +153,4 @@ _なし_
 
 ---
 
-_最終更新: 2026-10-05（LP を `lp/` ディレクトリに作成し、GitHub Actions で Pages にデプロイする構成に変更）_
+_最終更新: 2026-10-05（LP を `lp/` ディレクトリに作成し、GitHub Actions で Pages にデプロイ・公開完了）_

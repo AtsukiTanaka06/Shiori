@@ -20,6 +20,7 @@ Claude が作業を完了した際に追記するログ。新しいエントリ�
 - デザイントークン（`src/constants/design.ts` の sage/ivory/coral）に準拠した配色でヒーロー・機能紹介・aboutセクションを実装
 - `lp/` は GitHub Pages の「Deploy from a branch」では `/docs` かルートしか指定できないため、GitHub Actions ワークフロー（`.github/workflows/deploy-pages.yml`）で `lp/` をデプロイする構成にした
 - `tasks.md` にホームページ（LP）セクションを追加。Pages の Source を `GitHub Actions` に変更する作業はリポジトリ設定のためユーザー対応として記載
+- GitHub Pages の Source を `GitHub Actions` に設定し公開。初回デプロイは「Re-run jobs」による再実行で `upload-pages-artifact` が同名アーティファクトを重複アップロードしエラーになったが、`workflow_dispatch` で新規実行して解決。`https://atsukitanaka06.github.io/Shiori/` で公開確認済み
 
 ### 変更ファイル
 - `lp/index.html`（新規）
@@ -695,3 +696,6 @@ Claude が作業を完了した際に追記するログ。新しいエントリ�
 <!-- session:end 2026-10-05 00:17 -->
 <!-- session:end 2026-10-05 00:22 -->
 <!-- session:end 2026-10-05 00:26 -->
+<!-- session:end 2026-10-05 00:29 -->
+<!-- session:end 2026-10-05 00:36 -->
+<!-- session:end 2026-10-05 00:42 -->
