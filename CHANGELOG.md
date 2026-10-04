@@ -13,6 +13,34 @@ Claude が作業を完了した際に追記するログ。新しいエントリ�
 - path/to/file
 ```
 
+## 2026-10-05（GitHub Pages 用LPを作成）
+
+### やったこと
+- アプリ紹介用のランディングページを `docs/` 配下のプロジェクトドキュメントと混ざらないよう `lp/` ディレクトリに新規作成
+- デザイントークン（`src/constants/design.ts` の sage/ivory/coral）に準拠した配色でヒーロー・機能紹介・aboutセクションを実装
+- `lp/` は GitHub Pages の「Deploy from a branch」では `/docs` かルートしか指定できないため、GitHub Actions ワークフロー（`.github/workflows/deploy-pages.yml`）で `lp/` をデプロイする構成にした
+- `tasks.md` にホームページ（LP）セクションを追加。Pages の Source を `GitHub Actions` に変更する作業はリポジトリ設定のためユーザー対応として記載
+
+### 変更ファイル
+- `lp/index.html`（新規）
+- `lp/style.css`（新規）
+- `.github/workflows/deploy-pages.yml`（新規）
+- `tasks.md`（更新）
+
+---
+
+## 2026-10-04（実機/シミュレータ動作確認を完了）
+
+### やったこと
+- 積み残しだった実機/シミュレータ動作確認3件をユーザーが実施し、すべて問題なしを確認
+  - Phase 6（編集・削除）: 編集→保存→詳細画面への反映、削除→本棚・カレンダーからの消去
+  - 日記（カレンダー）機能: タブ切り替え・日付選択・メモ保存・詳細画面表示
+  - 「読書中」ステータス: 登録時の本棚バッジ表示・カレンダー連動
+- `tasks.md` / `progress.md` を更新し、Phase 6・日記機能を ✅ 完了に変更
+
+### 変更ファイル
+- `tasks.md`, `progress.md`（更新）
+
 ---
 
 ## 2026-09-29 (計画振り返り・booksテーブル削除のCASCADE問題を修正)
@@ -660,3 +688,10 @@ Claude が作業を完了した際に追記するログ。新しいエントリ�
 <!-- session:end 2026-09-28 23:59 -->
 <!-- session:end 2026-09-29 00:05 -->
 <!-- session:end 2026-09-29 00:09 -->
+<!-- session:end 2026-09-29 00:14 -->
+<!-- session:end 2026-10-04 23:42 -->
+<!-- session:end 2026-10-04 23:58 -->
+<!-- session:end 2026-10-05 00:08 -->
+<!-- session:end 2026-10-05 00:17 -->
+<!-- session:end 2026-10-05 00:22 -->
+<!-- session:end 2026-10-05 00:26 -->

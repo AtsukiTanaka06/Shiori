@@ -81,7 +81,7 @@ _なし_
 - [x] 詳細画面（`app/books/[id].tsx`）— 書籍情報・読書記録・日記メモ表示（日記追加機能の一部として実装）
 - [x] 編集画面（`app/books/[id]/edit.tsx`, `src/hooks/useBookEdit.ts`）— ステータス・評価・感想・メモの編集
 - [x] 削除（確認ダイアログ付き）— 読書記録と日記メモを削除（`diaryService.deleteByBookId`）
-- [ ] 実機/シミュレータでの動作確認（編集→保存→詳細画面に反映・削除→本棚から消える）
+- [x] 実機/シミュレータでの動作確認（編集→保存→詳細画面に反映・削除→本棚から消える）
 
 ### 日記機能（本棚とは別軸の追加機能）
 
@@ -101,7 +101,7 @@ _なし_
 - [x] アプリ起動時のホーム画面をカレンダーに変更（`app/(tabs)/index.tsx` ⇄ `bookshelf.tsx` を入れ替え）
 - [x] `diary_entries` migration を Supabase MCP 経由で本番プロジェクトに適用（`apply_migration`、RLS有効化・テーブル作成を確認済み）
 - [x] タブバーで選択中タブが分かるように改善（選択時はアイコンを塗りつぶし表示 + ラベル太字）
-- [ ] 実機/シミュレータでの動作確認（タブ切り替え・日付選択・メモ保存・詳細画面表示）
+- [x] 実機/シミュレータでの動作確認（タブ切り替え・日付選択・メモ保存・詳細画面表示）
 
 ### ステータス「読書中」追加
 
@@ -110,12 +110,19 @@ _なし_
 - [x] 登録時に「読書中」を選ぶと `started_at` を自動設定（`recordService.create` / `useBookRegistration`）
 - [x] 登録画面・本棚フィルター/バッジ・本の詳細画面のUIに「読書中」を追加
 - [x] `docs/requirements.md` / `docs/database.md` / `docs/ui.md` 更新
-- [ ] 実機/シミュレータでの動作確認（「読書中」で登録 → 本棚バッジ表示 → カレンダーに表示されること）
+- [x] 実機/シミュレータでの動作確認（「読書中」で登録 → 本棚バッジ表示 → カレンダーに表示されること）
 
 ### Phase 7 — 設定・アカウント
 
 - [ ] 設定画面（`app/settings.tsx`）
 - [ ] アカウント削除（ユーザーデータの完全削除）
+
+### ホームページ（LP）
+
+- [x] `lp/index.html` / `lp/style.css` 作成（GitHub Pages 用、デザイントークン準拠）
+- [x] `.github/workflows/deploy-pages.yml` 作成（`lp/` を GitHub Actions でデプロイ）
+- [ ] GitHub リポジトリ設定で Pages の Source を `GitHub Actions` に変更（Settings → Pages）— ユーザー作業
+- [ ] 公開後の表示確認
 
 ### Phase 8 — リリース
 
@@ -139,11 +146,11 @@ _なし_
 
 ## 積み残しリスク（2026-09-29 計画振り返り）
 
-- [ ] 実機/シミュレータ動作確認が2件未消化（日記機能・Phase 6 編集/削除）。新機能着手より優先して消化する
+- [x] 実機/シミュレータ動作確認が2件未消化（日記機能・Phase 6 編集/削除）。新機能着手より優先して消化する → 2026-10-04 に実機確認完了（「読書中」ステータス分も含め3件とも確認済み）
 - [ ] Integration Test / E2E Test が未着手（`.claude/rules/testing.md` 要求）。Phase 8 前に着手を検討
 - [ ] Phase 7（アカウント削除）は Phase 8 着手前に完了させる（App Store 審査要件）
 - [x] `books` の DELETE が `reading_records`/`diary_entries` に `ON DELETE CASCADE` していたため、任意の認証済みユーザーが共有書籍を削除すると他ユーザーのデータまで消える問題を発見・修正済み（`book_id` 側の FK を `RESTRICT` に変更。migration: `20260929000000_restrict_books_delete_cascade.sql`、Supabase MCP経由で本番適用済み。security advisor 新規指摘なし）
 
 ---
 
-_最終更新: 2026-09-29 (計画振り返り。書籍API・表紙画像・重複ISBNの未決定事項を実装済みとして解決済みに更新。security-reviewerエージェントの指摘を受け、booksテーブル削除のCASCADE問題をRESTRICTに修正)_
+_最終更新: 2026-10-05（LP を `lp/` ディレクトリに作成し、GitHub Actions で Pages にデプロイする構成に変更）_
